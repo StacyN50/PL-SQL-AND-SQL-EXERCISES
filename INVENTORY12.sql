@@ -1,0 +1,29 @@
+create or replace type sales_row as object(
+s_date date,
+s_orderid number,
+s_productid number,
+s_customerid number,
+s_totalamount number
+);
+
+create type sales_table is table of sales_row;
+
+CREATE OR REPLACE FUNCTION FETCH_SALES_TABLE(
+S_ORDERID NUMBER
+)
+RETURN SALES_TABLE
+PIPELINED
+IS
+
+BEGIN
+FOR C IN
+(
+SELECT SALES_DATE,ORDER_ID,PRODUCT_ID,CUSTOMER_ID,TOTAL_AMOUNT
+FROM SALES WHERE ORDER_ID = S_ORDERID
+)
+LOOP
+PIPE ROW(SALES_ROW(C.SALES_DATE,C.ORDER_ID,C.PRODUCT_ID,C.CUSTOMER_ID,C.TOTAL_AMOUNT));
+END LOOP;
+END;
+
+SELECT * FROM TABLE(FETCH_SALES_TABLE(1001));
